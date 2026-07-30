@@ -166,9 +166,11 @@ PRACTICE_CSS = """
   font-style:italic;color:var(--ink)}
 /* display toggle rather than an animated height: no clipping of wrapped text */
 .pr-dr{display:none}
-.pr-pt:hover .pr-dr,.pr-pt:focus-visible .pr-dr{
+.pr-pt:hover .pr-dr,.pr-pt:focus-visible .pr-dr,.pr-pt.open .pr-dr{
   display:block;margin-top:8px;padding-top:8px;
   border-top:.75pt dotted rgba(243,121,64,.5);animation:pr-reveal .16s ease-out}
+.pr-pt.open{border-color:var(--accent);background:var(--accent-soft)}
+.pr-pt.open .pr-rule{color:var(--accent)}
 @keyframes pr-reveal{from{opacity:0;transform:translateY(-2px)}to{opacity:1;transform:none}}
 .pr-dr-label{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;
   font-weight:700;color:var(--accent);display:block;margin-bottom:3px}
@@ -198,14 +200,98 @@ PRACTICE_CSS = """
 @media (prefers-reduced-motion:reduce){
   .pr-panel,#practice-drawer,.pr-progress-fill{transition:none}
 }
+
+/* ---------- PHONE ---------- */
+/* Scaled-to-fit pages are set by fitPages() in JS; this keeps the sideways
+   overflow from ever reaching the document. */
+@media (max-width:720px){
+  html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
+  #pages{overflow-x:hidden}
+  /* The toggle is a 5pt label on a scaled page - give it a real tap target. */
+  .practice-toggle{padding:2mm 1mm 2mm 3mm;font-size:6.4pt}
+}
+
+/* Body scroll lock while the drawer is open (iOS ignores overflow:hidden). */
+body.pr-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+
 @media (max-width:680px){
-  .pr-panel{width:100vw}
-  .pr-head,.pr-tabs,.pr-controls,.pr-body{padding-left:18px;padding-right:18px}
-  .pr-progress{margin-left:18px;margin-right:18px}
-  .pr-head h2{font-size:25px}
-  .pr-note,.pr-disclaimer{margin-left:46px}
-  .pr-controls{flex-wrap:wrap;gap:11px}
-  .pr-clock{margin-left:0;width:100%;justify-content:space-between}
+  .pr-panel{
+    width:100vw;
+    height:100vh;height:100dvh;   /* dvh tracks the Safari URL bar */
+  }
+  .pr-head,.pr-tabs,.pr-controls,.pr-body{padding-left:16px;padding-right:16px}
+  .pr-progress{margin-left:16px;margin-right:16px}
+
+  /* Safe areas: notch at the top, home indicator at the bottom. */
+  .pr-head{padding-top:calc(20px + env(safe-area-inset-top))}
+  .pr-close{top:calc(14px + env(safe-area-inset-top))}
+  .pr-body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
+  .pr-head,.pr-tabs,.pr-controls{padding-left:calc(16px + env(safe-area-inset-left));
+    padding-right:calc(16px + env(safe-area-inset-right))}
+
+  /* Compact the chrome hard - otherwise the header, tabs and controls fill the
+     whole screen and the actual content starts below the fold. */
+  .pr-head{padding-top:calc(13px + env(safe-area-inset-top));padding-bottom:13px}
+  .pr-head h2{font-size:21px;margin:5px 0 5px}
+  .pr-kicker{font-size:8.5px}
+  .pr-sub{font-size:8.5px}
+  /* Tall enough for all three groups now the rows are a fixed single line. */
+  .pr-tabs{max-height:184px;padding:11px 16px 10px}
+  .pr-group+.pr-group{margin-top:9px}
+  .pr-group-label{font-size:8px;margin-bottom:5px}
+  /* One horizontally scrolling row per group: predictable height, and no tab
+     left sliced in half by the max-height. */
+  .pr-group-row{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .pr-group-row::-webkit-scrollbar{display:none}
+  .pr-tab{padding:9px 12px;font-size:12.5px;min-height:36px;white-space:nowrap;flex:0 0 auto}
+  .pr-close{width:38px;height:38px;font-size:19px}
+  .pr-controls{padding-top:11px}
+  .pr-mode{padding:11px 13px;font-size:9.5px;min-height:42px}
+  .pr-timer-btn{padding:11px 14px;min-height:42px;min-width:84px}
+  /* Three clean full-width rows rather than ragged wrapping. */
+  .pr-controls{flex-wrap:wrap;gap:9px}
+  .pr-seg{order:1;width:100%}
+  .pr-mode{flex:1;text-align:center}
+  .pr-sides.on{display:flex;order:2;width:100%;gap:9px}
+  .pr-side{flex:1;padding:10px 8px;min-height:42px;text-align:center}
+  .pr-clock{order:3;width:100%;margin-left:0;justify-content:space-between}
+  .pr-timer{font-size:22px}
+  .pr-hint{margin-left:0;font-size:8px}
+
+  /* The rail costs 46px of width on a 375px screen - tighten it right up. */
+  .pr-block{padding-left:32px}
+  .pr-block::before{left:7px}
+  .pr-dot{left:2px;width:11px;height:11px}
+  .pr-num{width:16px;font-size:8px}
+  .pr-block h3{font-size:16.5px}
+  .pr-block li,.pr-ix li{font-size:14px;line-height:1.5}
+  .pr-say{font-size:15px}
+  .pr-note,.pr-ix,.pr-disclaimer{margin-left:0}
+  .pr-pt{padding:11px 12px}
+
+  #pr-acute-launch{
+    right:calc(12px + env(safe-area-inset-right));
+    bottom:calc(12px + env(safe-area-inset-bottom));
+    padding:13px 15px;font-size:9.5px;min-height:44px}
+  #pr-acute-launch.raised{bottom:calc(62px + env(safe-area-inset-bottom))}
+}
+
+/* Touch devices have no hover: reveal the doctor side on tap instead, and
+   show a persistent affordance since there is no pointer to hint with. */
+@media (hover:none){
+  .pr-pt{cursor:pointer}
+  /* No pointer to hint with, so state the affordance on every line. */
+  .pr-pt::after{content:"Tap";position:absolute;right:11px;top:10px;
+    font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);opacity:.8}
+  .pr-rule{padding-right:34px}
+  .pr-pt.open::after{content:none}
+  /* Emulated hover sticks after a tap on iOS; the .open class is the source of
+     truth there, so neutralise it. */
+  .pr-pt:hover .pr-dr{display:none}
+  .pr-pt.open .pr-dr{display:block;margin-top:8px;padding-top:8px;
+    border-top:.75pt dotted rgba(243,121,64,.5);animation:pr-reveal .16s ease-out}
 }
 """
 
@@ -433,18 +519,32 @@ PRACTICE_JS = """
   }
 
   /* ---- open / close ---- */
+  /* iOS ignores overflow:hidden on the body, so pin it and restore the
+     scroll position on close. */
+  var lockedAt=0;
+  function lockScroll(){
+    lockedAt=window.pageYOffset||document.documentElement.scrollTop||0;
+    document.body.style.top=(-lockedAt)+'px';
+    document.body.classList.add('pr-locked');
+  }
+  function unlockScroll(){
+    document.body.classList.remove('pr-locked');
+    document.body.style.top='';
+    window.scrollTo(0, lockedAt);
+  }
+
   function open(caseNo){
     if(!DATA[caseNo]) return;
     lastFocus=document.activeElement;
-    state.caseNo=caseNo; state.tab=0; state.mode='hx';
+    state.caseNo=caseNo; state.tab=0; state.mode='hx'; state.side='dr';
     drawer.dataset.open='1';
-    document.documentElement.style.overflow='hidden';
+    lockScroll();
     render(); resetTimer();
     document.querySelector('.pr-close').focus();
   }
   function close(){
     drawer.removeAttribute('data-open'); stopTimer();
-    document.documentElement.style.overflow='';
+    unlockScroll();
     if(lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
@@ -455,12 +555,62 @@ PRACTICE_JS = """
     if(e.target===drawer){ close(); return; }
     var tab=e.target.closest('.pr-tab');
     if(tab){ state.tab=+tab.dataset.i; render(); resetTimer(); return; }
+    /* Tap (or click) a patient line to pin the doctor's question open. Always
+       bound rather than gated on a hover media query, which reports
+       hover-capable on touch laptops and in a narrow desktop window. */
+    var pt=e.target.closest('.pr-pt');
+    if(pt){
+      var was=pt.classList.contains('open');
+      [].forEach.call(bodyEl.querySelectorAll('.pr-pt.open'), function(o){o.classList.remove('open');});
+      if(!was) pt.classList.add('open');
+      return;
+    }
     var side=e.target.closest('.pr-side');
     if(side && side.dataset.side!==state.side){ state.side=side.dataset.side; render(); return; }
     var m=e.target.closest('.pr-mode');
     if(m && m.dataset.mode!==state.mode){ state.mode=m.dataset.mode; render(); resetTimer(); }
   });
   timerBtn.addEventListener('click', toggleTimer);
+
+  /* ---- fit the A4 pages to a phone screen ----
+     The pages are a fixed 210mm wide, so on a phone they overflow badly.
+     Scale each page down to the viewport and pull the following page up by the
+     height the transform did not reclaim (transforms do not affect layout). */
+  var GAP = 10;
+  function fitPages(){
+    var pages=document.querySelectorAll('#pages>.page');
+    if(!pages.length) return;
+    /* A hidden or backgrounded tab reports a zero-width viewport; scaling to
+       zero would blank the document, so leave it alone until it is real. */
+    var avail=document.documentElement.clientWidth||window.innerWidth||0;
+    if(avail<=0) return;
+    var narrow = avail<=720;
+    for(var i=0;i<pages.length;i++){
+      var p=pages[i];
+      if(!narrow){
+        p.style.transform=''; p.style.transformOrigin='';
+        p.style.margin=''; continue;
+      }
+      p.style.transform=''; p.style.margin='';           // measure unscaled
+      var w=p.offsetWidth, h=p.offsetHeight;
+      if(!w||!h) continue;
+      var s=avail/w;
+      if(!isFinite(s)||s<=0||s>=1){ p.style.transform=''; continue; }
+      p.style.transformOrigin='top left';
+      p.style.transform='scale('+s+')';
+      p.style.marginLeft='0'; p.style.marginRight='0';
+      p.style.marginBottom=(-(h*(1-s))+GAP)+'px';
+    }
+  }
+  var fitTimer=null;
+  function refit(){ clearTimeout(fitTimer); fitTimer=setTimeout(fitPages,120); }
+  window.addEventListener('resize', refit);
+  window.addEventListener('orientationchange', refit);
+  /* Pagination is async, so wait for it to mark the body ready. */
+  if(document.body.dataset.ready) fitPages();
+  else new MutationObserver(function(_,ob){
+    if(document.body.dataset.ready){ ob.disconnect(); fitPages(); }
+  }).observe(document.body,{attributes:true,attributeFilter:['data-ready']});
 
   /* Keep clear of the handbook's own corner hint while it is on screen. */
   (function(){

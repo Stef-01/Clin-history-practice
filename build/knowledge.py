@@ -1845,6 +1845,16 @@ NO_HISTORY_NOTE = ("This patient cannot give a history. Practise the collateral 
                    "paramedic or relative and take it from them.")
 
 
+# Fold the investigations table into the knowledge base. Aliases share the same
+# dict object as their target, so mutating the target updates them too.
+# setdefault leaves the richer ACUTE_KB entries untouched.
+from investigations import IX  # noqa: E402
+
+for _key, _tests in IX.items():
+    if _key in DIFFERENTIAL_KB:
+        DIFFERENTIAL_KB[_key].setdefault("ix", _tests)
+
+
 # ---------------------------------------------------------------------------
 # Layer 2: per-system fallbacks
 # ---------------------------------------------------------------------------
@@ -1859,6 +1869,11 @@ SYSTEM_KB = {
                "JVP, apex beat, heart sounds and murmurs with the patient at 45 degrees",
                "Chest expansion, percussion, auscultation and vocal resonance front and back",
                "Peripheral oedema, calf assessment and peripheral pulses"],
+        "ix": [
+            "ECG, chest X-ray and oxygen saturations as the baseline set.",
+            "FBC, CRP, urea and electrolytes, troponin or D-dimer where the history warrants it.",
+            "Echocardiography, CT or lung function directed by the working diagnosis.",
+        ],
         "focus": "cardiorespiratory",
     },
     "Gastrointestinal and hepatobiliary presentations": {
@@ -1869,6 +1884,11 @@ SYSTEM_KB = {
                "Inspect, palpate all nine regions starting away from the pain, percuss and auscultate",
                "Organomegaly, masses, shifting dullness, hernial orifices",
                "Offer a rectal examination and inspect the stool"],
+        "ix": [
+            "FBC, CRP, urea and electrolytes, liver function, amylase or lipase; pregnancy test where relevant.",
+            "Urine dipstick; erect chest X-ray if perforation is possible.",
+            "Ultrasound or CT abdomen directed by the site of pain; group and save if bleeding.",
+        ],
         "focus": "abdominal",
     },
     "Renal, urinary and male genital presentations": {
@@ -1878,6 +1898,11 @@ SYSTEM_KB = {
         "ex": ["Volume status, blood pressure, and peripheral oedema",
                "Renal angle tenderness, palpable kidneys, palpable bladder and bladder scan",
                "External genitalia and digital rectal examination where relevant"],
+        "ix": [
+            "Urine dipstick, midstream culture, and urine protein-to-creatinine ratio.",
+            "Urea and electrolytes with a baseline for comparison, FBC, CRP; venous gas for potassium.",
+            "Ultrasound of the renal tract to exclude obstruction; bladder scan for residual volume.",
+        ],
         "focus": "renal and genitourinary",
     },
     "Endocrine and general systemic presentations": {
@@ -1887,6 +1912,11 @@ SYSTEM_KB = {
         "ex": ["Observations including capillary glucose, plus lying and standing blood pressure",
                "Thyroid inspection and palpation, eye signs, tremor and reflexes",
                "Skin, hair, body habitus, proximal muscle power and hydration"],
+        "ix": [
+            "Capillary glucose, HbA1c, urea and electrolytes, calcium, thyroid function.",
+            "FBC, CRP, liver function; cortisol where adrenal disease is possible.",
+            "Imaging of the relevant gland where a structural lesion is suspected.",
+        ],
         "focus": "endocrine and general",
     },
     "Musculoskeletal and rheumatological presentations": {
@@ -1897,6 +1927,11 @@ SYSTEM_KB = {
                "Active then passive range, joint line tenderness, effusion and warmth",
                "Examine the joint above and below, plus gait and special tests",
                "Screen the other joints and the skin, nails and eyes"],
+        "ix": [
+            "FBC, CRP and ESR; urate and creatine kinase where the picture fits.",
+            "X-ray of the affected joint in two views; aspirate any acutely hot swollen joint before antibiotics.",
+            "Autoimmune serology or MRI where inflammatory or structural disease is suspected.",
+        ],
         "focus": "musculoskeletal",
     },
     "Neurological presentations": {
@@ -1908,6 +1943,11 @@ SYSTEM_KB = {
                "Cranial nerves, then tone, power, reflexes, coordination and sensation in all four limbs",
                "Gait, Romberg, and fundoscopy",
                "Blood pressure, pulse rhythm and carotid auscultation"],
+        "ix": [
+            "Capillary glucose first, then FBC, urea and electrolytes, calcium, CRP.",
+            "CT or MRI head directed by the deficit and its time course.",
+            "Lumbar puncture once a mass lesion is excluded; EEG or nerve conduction studies where indicated.",
+        ],
         "focus": "neurological",
     },
     "Skin, wounds and trauma presentations": {
@@ -1918,6 +1958,11 @@ SYSTEM_KB = {
                "Assess the wound for depth, contamination, foreign body and tissue viability",
                "Neurovascular status distal to any wound, and regional lymph nodes",
                "Mucous membranes, nails and scalp"],
+        "ix": [
+            "Usually a clinical diagnosis; photograph and measure to track change.",
+            "Swab if infected, and biopsy any lesion that is atypical, non-healing or changing.",
+            "FBC, CRP and glucose if there are systemic features.",
+        ],
         "focus": "dermatological",
     },
     "Ear, nose and throat presentations": {
@@ -1928,6 +1973,11 @@ SYSTEM_KB = {
                "Otoscopy of both ears, tuning fork tests, anterior rhinoscopy and oral cavity inspection",
                "Palpate the neck systematically for lymph nodes and masses",
                "Cranial nerves, particularly the facial nerve"],
+        "ix": [
+            "Otoscopy, tuning fork tests and formal audiometry where hearing is affected.",
+            "Flexible nasendoscopy for persistent hoarseness, a neck lump or airway symptoms.",
+            "FBC and CRP if infective; imaging of the neck where a mass or deep infection is suspected.",
+        ],
         "focus": "ENT",
     },
     "Infection and fever presentations": {
@@ -1939,6 +1989,11 @@ SYSTEM_KB = {
                "Systematic source hunt: chest, abdomen, urine, skin and soft tissue, lines, joints, CNS",
                "Rash, lymphadenopathy, new murmur and hepatosplenomegaly",
                "Perfusion, capillary refill and urine output"],
+        "ix": [
+            "Blood cultures before antibiotics, FBC, CRP, urea and electrolytes, lactate.",
+            "Source-directed samples: urine, sputum, wound, stool, CSF.",
+            "Chest X-ray and further imaging directed at the suspected source.",
+        ],
         "focus": "infective",
     },
     "Haematological presentations": {
@@ -1949,6 +2004,11 @@ SYSTEM_KB = {
                "Full lymph node survey and examination for hepatosplenomegaly",
                "Mouth for ulcers and gum changes, and fundoscopy",
                "Observations and any focus of infection"],
+        "ix": [
+            "FBC with a blood film - the film often gives the diagnosis.",
+            "Reticulocytes, haematinics, LDH, clotting and a group and save.",
+            "Bone marrow biopsy or specialist referral where the film or counts are unexplained.",
+        ],
         "focus": "haematological",
     },
     "Oncological emergencies and communication": {
@@ -1960,6 +2020,11 @@ SYSTEM_KB = {
                "Site-directed examination for cord compression, SVC obstruction and effusions",
                "Bony tenderness, neurological examination, hydration and mental state",
                "Lines, mouth and skin for a source of infection"],
+        "ix": [
+            "FBC, urea and electrolytes, liver function, calcium, LDH and clotting.",
+            "Imaging directed at the suspected complication; blood cultures if febrile.",
+            "Discuss urgently with the treating oncology team before starting treatment.",
+        ],
         "focus": "oncological",
     },
 }

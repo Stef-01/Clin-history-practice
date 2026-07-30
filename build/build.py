@@ -276,6 +276,10 @@ def build_case_practice(card_html, system):
     )
     bedside = section_bullets(card_html, "Bedside examination")
     mgmt = section_bullets(card_html, "Management")
+    # The card already carries its own work-up; use it verbatim for the
+    # generalised tab rather than inventing a parallel one.
+    gen_ix = (section_bullets(card_html, "Investigations")
+              + section_bullets(card_html, "Imaging and procedures"))
     sys_entry = SYSTEM_KB.get(system, {})
 
     # --- generalised presentation tab ---
@@ -294,6 +298,7 @@ def build_case_practice(card_html, system):
             "group": "general",
             "hx": build_history(title, system, gen_hx, red_flags),
             "ex": build_exam(system, gen_ex),
+            "ix": gen_ix or sys_entry.get("ix", []),
             "note": mgmt[0] if mgmt else "",
         }
     ]
@@ -308,6 +313,9 @@ def build_case_practice(card_html, system):
             matched = True
         else:
             focus_hx, focus_ex = generic_focus(term, system)
+            # No curated tests for this differential; fall back to the system's
+            # first-line set so every tab still shows a work-up.
+            findings = list(sys_entry.get("ix", []))
             matched = False
         tabs.append(
             {
@@ -391,6 +399,14 @@ def main():
     payload = "<script id=\"practice-data\" type=\"application/json\">%s</script>" % json.dumps(
         data, ensure_ascii=False
     ).replace("</", "<\\/")
+
+    # viewport-fit=cover so the safe-area insets below resolve on notched iPhones.
+    out = out.replace(
+        '<meta name="viewport" content="width=device-width,initial-scale=1">',
+        '<meta name="viewport" content="width=device-width,initial-scale=1,'
+        'viewport-fit=cover">'
+        '<meta name="apple-mobile-web-app-capable" content="yes">'
+        '<meta name="theme-color" content="#212E36">', 1)
 
     out = out.replace("</style>", PRACTICE_CSS + "\n</style>", 1)
     out = out.replace("</body>", payload + PRACTICE_HTML + PRACTICE_JS + "</body>", 1)

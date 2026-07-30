@@ -4,7 +4,8 @@ An interactive rehearsal layer built on top of the *Clinical Presentation
 Approaches* bedside handbook.
 
 Open **`index.html`** in any browser. It is a single self-contained file — no
-build step, no server, no network access required.
+build step, no server, no network access required. It is built to be used on an
+iPhone as well as a desktop; see [Using it on a phone](#using-it-on-a-phone).
 
 ## What it does
 
@@ -71,6 +72,39 @@ For cardiac arrest, CO2 retention and opiate toxicity the patient cannot give a
 history, so the roleplay view says so and directs you to practise the collateral
 history from a witness, paramedic or relative instead.
 
+### Investigations
+
+Every tab — all 1,215 of them, across 103 cases — carries a **What confirms or
+grades it** block in the examination view, listing the bedside and first-line
+tests that actually change what you do, with the diagnostic threshold where one
+exists. It is never shown on the patient's side.
+
+Three sources feed it, in order of preference:
+
+1. `build/investigations.py` — a curated per-pathology table covering every
+   entry in the knowledge base.
+2. For the generalised tab, the card's **own** Investigations and Imaging and
+   procedures sections, used verbatim rather than a parallel invented work-up.
+3. A per-system first-line set for differentials with no curated entry, so no
+   tab is ever left without a work-up.
+
+### Using it on a phone
+
+The handbook's pages are a fixed A4 width, so on load each page is scaled to fit
+the viewport and the following page pulled up to match — the book reads
+top-to-bottom on an iPhone with no sideways scrolling, and pinch-to-zoom still
+works. Desktop rendering and printing are untouched.
+
+In the drawer: safe-area insets for the notch and home indicator, `dvh` height
+so the Safari URL bar does not crop it, 42–44px tap targets, body-scroll lock
+that works on iOS, and a compacted header so content starts above the fold.
+Differential groups become horizontally scrolling rows rather than wrapping into
+a wall of chips.
+
+Because touch devices have no hover, **tapping** a patient line pins the doctor's
+question open (one at a time), and each line carries a small `TAP` affordance.
+On desktop, hover still works and a click pins it.
+
 ### Patient roleplay
 
 In history mode there is a **Doctor / Patient roleplay** switch, so two people
@@ -105,6 +139,8 @@ python3 build/build.py
 
 - `build/source.html` — the original handbook, untouched.
 - `build/knowledge.py` — the content knowledge base.
+- `build/investigations.py` — the per-pathology investigations table, kept
+  separate because it is a large flat table that is easier to review on its own.
 - `build/build.py` — parses each case and derives the practice cards.
 - `build/layer.py` — the injected presentation: styles, drawer markup and
   behaviour. Separated from `build.py` so the design can be iterated on without
