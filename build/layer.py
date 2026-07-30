@@ -23,6 +23,23 @@ PRACTICE_CSS = """
 .critical .practice-toggle:hover,.critical .practice-toggle:focus-visible{color:var(--ink);border-color:var(--ink)}
 @media print{.practice-toggle{display:none}#practice-drawer{display:none!important}}
 
+/* ---- standing launcher for the acute set ---- */
+#pr-acute-launch{
+  position:fixed;right:22px;bottom:22px;z-index:8000;display:flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;color:var(--paper);background:var(--red);border:0;border-radius:2px;
+  padding:13px 17px;cursor:pointer;
+  box-shadow:0 3px 14px rgba(169,64,53,.34);
+  transition:background .14s,transform .14s,bottom .2s ease}
+/* The handbook's own interactive hint occupies this corner for its first 10
+   seconds; sit above it until it retires rather than covering it. */
+#pr-acute-launch.raised{bottom:74px}
+#pr-acute-launch:hover,#pr-acute-launch:focus-visible{background:var(--ink);transform:translateY(-1px);outline:none}
+.pr-launch-n{font-size:11px;padding:2px 6px;border-radius:2px;
+  background:rgba(248,246,241,.19);letter-spacing:.04em}
+@media print{#pr-acute-launch{display:none}}
+@media (max-width:680px){#pr-acute-launch{right:12px;bottom:12px;padding:11px 13px;font-size:9px}}
+
 /* ---- scrim + panel ---- */
 #practice-drawer{position:fixed;inset:0;z-index:9000;visibility:hidden;opacity:0;
   transition:opacity .22s ease,visibility .22s;
@@ -69,8 +86,9 @@ PRACTICE_CSS = """
 .pr-tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .pr-tab.general{border-color:var(--accent);color:var(--accent);font-weight:600}
 .pr-tab.general[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-.pr-tab.must-not-miss{border-color:rgba(169,64,53,.45);color:var(--red)}
-.pr-tab.must-not-miss[aria-selected="true"]{background:var(--red);border-color:var(--red);color:#fff}
+.pr-tab.must-not-miss,.pr-tab.acute{border-color:rgba(169,64,53,.45);color:var(--red)}
+.pr-tab.must-not-miss[aria-selected="true"],.pr-tab.acute[aria-selected="true"]{
+  background:var(--red);border-color:var(--red);color:#fff}
 
 /* ---- mode switch + timer ---- */
 .pr-controls{flex:0 0 auto;padding:15px 34px 0;display:flex;align-items:center;gap:16px}
@@ -164,6 +182,15 @@ PRACTICE_CSS = """
 .pr-note{background:var(--accent-soft);border-left:2pt solid var(--accent);
   padding:12px 15px;margin:22px 0 0 46px;font-size:13px;line-height:1.55;color:var(--ink)}
 .pr-flag strong,.pr-note strong{font-weight:650}
+.pr-ix{margin:22px 0 0 46px;padding:13px 16px;background:rgba(33,46,54,.045);
+  border-left:2pt solid var(--ink)}
+.pr-ix-label{display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.15em;
+  text-transform:uppercase;font-weight:700;color:var(--ink);margin-bottom:8px}
+.pr-ix ul{padding-left:17px;margin:0}
+.pr-ix li{font-size:13px;line-height:1.55;margin-bottom:6px;color:var(--ink)}
+.pr-ix li::marker{color:var(--ink)}
+.pr-ix li:last-child{margin-bottom:0}
+
 .pr-disclaimer{margin:26px 0 0 46px;padding-top:13px;border-top:.75pt solid var(--hair);
   font-family:var(--mono);font-size:8.5px;line-height:1.7;letter-spacing:.07em;
   text-transform:uppercase;color:var(--mute)}
@@ -183,6 +210,9 @@ PRACTICE_CSS = """
 """
 
 PRACTICE_HTML = """
+<button type="button" id="pr-acute-launch" data-case="AC" aria-haspopup="dialog">
+  <span class="pr-launch-n">19</span>Acute presentations
+</button>
 <div id="practice-drawer" role="dialog" aria-modal="true" aria-labelledby="pr-title">
   <div class="pr-panel">
     <div class="pr-head">
@@ -231,6 +261,7 @@ PRACTICE_JS = """
 
   var GROUP_ORDER = [
     {key:'general',       label:'This presentation'},
+    {key:'acute',         label:'Acute presentations', danger:true},
     {key:'must-not-miss', label:'Must not miss', danger:true},
     {key:'other',         label:'Other differentials'}
   ];
@@ -329,7 +360,16 @@ PRACTICE_JS = """
     });
 
     var tab=c.tabs[state.tab], out='';
-    if(state.mode==='hx' && tab.group!=='general'){
+    if(state.mode==='hx' && tab.group==='acute'){
+      /* An acute presentation in its own right, not a differential of something. */
+      out+='<div class="pr-flag"><strong>'+(roleplay?'The case you are playing:':'Your task:')+'</strong> '
+        + (roleplay
+            ? 'you are presenting acutely with '+esc(tab.label.toLowerCase())+'. Do not name it, '
+              +'and do not volunteer the risk factors unless you are asked for them.'
+            : 'recognise and assess '+esc(tab.label.toLowerCase())+', and stabilise alongside '
+              +'the history rather than after it.')
+        + '</div>';
+    } else if(state.mode==='hx' && tab.group!=='general'){
       out+='<div class="pr-flag"><strong>'+(roleplay?'The case you are playing:':'Your task:')+'</strong> '
         + (roleplay
             ? 'you have '+esc(tab.label.toLowerCase())+', presenting as '
@@ -375,6 +415,13 @@ PRACTICE_JS = """
       }
       out+='</div>';
     });
+    /* Objective findings and severity thresholds: examination view only, never
+       shown to the simulated patient. */
+    if(state.mode==='ex' && tab.ix && tab.ix.length){
+      out+='<div class="pr-ix"><span class="pr-ix-label">What confirms or grades it</span><ul>';
+      tab.ix.forEach(function(f){ out+='<li>'+esc(f)+'</li>'; });
+      out+='</ul></div>';
+    }
     if(state.mode==='hx' && tab.note){
       out+='<div class="pr-note"><strong>First management priority for this presentation:</strong> '
         + esc(tab.note)+'</div>';
@@ -402,7 +449,7 @@ PRACTICE_JS = """
   }
 
   document.addEventListener('click', function(e){
-    var t=e.target.closest('.practice-toggle');
+    var t=e.target.closest('.practice-toggle, #pr-acute-launch');
     if(t){ e.preventDefault(); open(t.dataset.case); return; }
     if(e.target.closest('.pr-close')){ close(); return; }
     if(e.target===drawer){ close(); return; }
@@ -414,6 +461,18 @@ PRACTICE_JS = """
     if(m && m.dataset.mode!==state.mode){ state.mode=m.dataset.mode; render(); resetTimer(); }
   });
   timerBtn.addEventListener('click', toggleTimer);
+
+  /* Keep clear of the handbook's own corner hint while it is on screen. */
+  (function(){
+    var tip=document.getElementById('mgmt-tip'), launch=document.getElementById('pr-acute-launch');
+    if(!tip||!launch) return;
+    function sync(){
+      var shown=getComputedStyle(tip).display!=='none';
+      launch.classList.toggle('raised', shown);
+    }
+    sync();
+    new MutationObserver(sync).observe(tip,{attributes:true,attributeFilter:['class','style']});
+  })();
   document.addEventListener('keydown', function(e){
     if(!drawer.dataset.open) return;
     if(e.key==='Escape'){ close(); return; }

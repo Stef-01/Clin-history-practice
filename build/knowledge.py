@@ -1342,6 +1342,510 @@ DIFFERENTIAL_KB.update({
 
 
 # ---------------------------------------------------------------------------
+# Acute presentations
+# ---------------------------------------------------------------------------
+# Curated from the acute-presentation revision set. These entries carry a third
+# field, 'ix', for the objective findings and severity thresholds that confirm
+# or grade the diagnosis - ECG, ABG, CXR, and numeric cut-offs. Because 'ix' is
+# investigation data it is shown in the examination view only, and never on the
+# simulated patient's side.
+ACUTE_KB = {
+    "acs": {
+        "hx": [
+            "Risk factors: known ischaemic heart disease or angina, diabetes, hypertension, "
+            "obesity, smoking, hyperlipidaemia, increasing age, male sex, family history.",
+            "Central constricting chest pain lasting more than 15 minutes, with onset at rest.",
+            "Associated nausea, vomiting, sweating, shortness of breath and palpitations.",
+            "Radiation to the neck, jaw or arms, and any feeling of impending doom.",
+            "Time of symptom onset precisely, and the response to GTN.",
+        ],
+        "ex": [
+            "Peripheral perfusion, blood pressure in both arms, radial-radial and radial-femoral delay.",
+            "JVP, apex beat character, new murmur of mitral regurgitation, third or fourth heart sound.",
+            "Bibasal crackles and any signs of cardiogenic shock.",
+            "Look for a non-cardiac source: chest wall tenderness, calf swelling, epigastric tenderness.",
+        ],
+        "ix": [
+            "ECG changes: ST elevation, new left bundle branch block, T-wave inversion, "
+            "ST depression, pathological Q waves.",
+            "Serial troponin, and bedside glucose.",
+        ],
+    },
+    "myocardial infarction": {
+        "hx": [
+            "Risk factors: known ischaemic heart disease or angina, diabetes, hypertension, "
+            "obesity, smoking, hyperlipidaemia, increasing age, male sex, family history.",
+            "Central constricting chest pain lasting more than 15 minutes, with onset at rest.",
+            "Nausea, vomiting, sweating, shortness of breath, palpitations, feelings of doom.",
+            "Time of symptom onset precisely - it drives reperfusion decisions.",
+        ],
+        "ex": [
+            "Haemodynamic state, both-arm blood pressure, peripheral perfusion.",
+            "New murmur, third heart sound, raised JVP, pulmonary crackles.",
+            "Signs of mechanical complication or right ventricular involvement.",
+        ],
+        "ix": [
+            "ECG changes: ST elevation, new left bundle branch block, T-wave inversion, "
+            "ST depression, pathological Q waves.",
+        ],
+    },
+    "pulmonary oedema": {
+        "hx": [
+            "Risk factors: known chronic heart failure, aggressive IV fluids, myocardial "
+            "infarction, arrhythmias, sepsis, acute hypertension.",
+            "Acute onset shortness of breath, and the patient feels very unwell.",
+            "Acute cough with frothy pink or white sputum.",
+            "Orthopnoea, pillow count, and any missed diuretic doses.",
+        ],
+        "ex": [
+            "Tachypnoea, tachycardia, hypoxia and increased work of breathing.",
+            "Bilateral basal crackles and a third heart sound.",
+            "Raised JVP; blood pressure to separate the hypertensive from the cardiogenic-shock phenotype.",
+        ],
+        "ix": [
+            "CXR changes: upper lobe diversion, fluid in septal lines and interlobar fissures, "
+            "pleural effusions.",
+            "ECG for ischaemia or arrhythmia as the precipitant.",
+        ],
+    },
+    "svt": {
+        "hx": [
+            "Triggers: stress, positional change, alcohol, caffeine, smoking, recreational "
+            "drug use, medications.",
+            "Palpitations - ask the patient to tap out the rate, and establish abrupt onset and offset.",
+            "Symptoms of instability: syncope, chest pain, heart failure, haemodynamic compromise.",
+        ],
+        "ex": [
+            "Pulse rate, rhythm and volume; blood pressure; conscious level.",
+            "Signs of heart failure and shock - these are the adverse features that change management.",
+            "JVP, murmurs of structural disease, and thyroid status.",
+        ],
+        "ix": [
+            "ECG to define the rhythm, and continuous monitoring.",
+            "Adverse features mandating synchronised cardioversion: shock, syncope, "
+            "myocardial ischaemia, heart failure.",
+            "Electrolytes including potassium and magnesium, and thyroid function.",
+        ],
+    },
+    "cardiac arrest": {
+        "hx": [
+            "Reversible causes: thrombus, tension pneumothorax, toxin, tamponade, hypoxia, "
+            "hypovolaemia, hypothermia, and hyper- or hypo-kalaemia, natraemia and glycaemia "
+            "or other metabolic upset.",
+            "From witnesses: time of collapse, whether it was witnessed, bystander CPR and downtime.",
+            "Preceding symptoms, known cardiac disease, drugs taken and any advance care directive.",
+        ],
+        "ex": [
+            "Lack of response to stimulus, lack of a normal breathing pattern, lack of a pulse.",
+            "Confirm arrest within 10 seconds and start compressions - do not prolong assessment.",
+            "During CPR look for the reversible causes: chest, neck veins, abdomen, temperature, skin.",
+        ],
+        "ix": [
+            "Rhythm check: shockable (VF or pulseless VT) versus non-shockable (asystole or PEA).",
+            "Bedside glucose, potassium, ABG and temperature to address reversible causes.",
+        ],
+    },
+    "asthma": {
+        "hx": [
+            "Risk factors: poor control, NSAID or beta blocker use, infection, trigger exposure "
+            "such as dust, cold, allergen or emotion.",
+            "Acute onset progressively worsening shortness of breath and wheeze.",
+            "Best and current peak flow, inhaler technique, adherence and reliever use per week.",
+            "Previous ICU admission or intubation - the strongest marker of risk.",
+        ],
+        "ex": [
+            "Increased work of breathing, tachypnoea, and ability to complete sentences.",
+            "Widespread polyphonic expiratory wheeze; a silent chest is life-threatening.",
+            "Accessory muscle use, tracheal tug, exhaustion and conscious level.",
+        ],
+        "ix": [
+            "Acute severe: peak flow 33-50% of best, respiratory rate over 25, pulse over 110, "
+            "unable to speak in complete sentences.",
+            "Life-threatening: peak flow under 33% of best, SpO2 under 92%, PaO2 under 8 kPa, "
+            "tiring, confusion, silent chest.",
+            "ABG: initial respiratory alkalosis from tachypnoea lowering CO2; progression to a "
+            "normal pCO2 with a falling pO2 is concerning.",
+        ],
+    },
+    "copd": {
+        "hx": [
+            "Risk factors: poor control, ongoing smoking, trigger exposure such as infection.",
+            "Acute onset cough, wheeze, shortness of breath and purulent sputum production.",
+            "Baseline exercise tolerance and MRC dyspnoea grade, exacerbation frequency.",
+            "Home oxygen or nebulisers, and any previous ventilation.",
+        ],
+        "ex": [
+            "Tachypnoea, increased work of breathing, unable to complete sentences.",
+            "Pyrexia if infective; pursed-lip breathing and hyperexpansion.",
+            "CO2 retention flap, and cor pulmonale with raised JVP and peripheral oedema.",
+        ],
+        "ix": [
+            "ABG typically shows respiratory acidosis and type 2 respiratory failure.",
+            "CXR may show underlying infection or an alternative diagnosis such as pneumothorax.",
+        ],
+    },
+    "pneumothorax": {
+        "hx": [
+            "Risk factors: tall, thin, young male; chest trauma; a procedure such as lung "
+            "biopsy; underlying asthma or COPD.",
+            "Sudden onset pleuritic chest pain and shortness of breath.",
+            "Any previous pneumothorax.",
+        ],
+        "ex": [
+            "Reduced expansion, hyper-resonant percussion and absent breath sounds on the affected side.",
+            "Tracheal deviation and haemodynamic compromise indicate tension - decompress before imaging.",
+        ],
+        "ix": [
+            "CXR: an area between lung and chest wall with no lung markings; tracheal deviation "
+            "away from the pneumothorax if under tension.",
+        ],
+    },
+    "pe": {
+        "hx": [
+            "Risk factors: immobility, recent surgery, pregnancy, long-haul travel, "
+            "oestrogen-containing hormone therapy, cancer, obesity, smoking, SLE, polycythaemia, "
+            "thrombophilia, previous DVT or PE.",
+            "Sudden onset shortness of breath, pleuritic chest pain and haemoptysis.",
+            "DVT signs such as leg swelling or calf pain.",
+            "Presyncope or syncope suggesting a significant clot burden.",
+        ],
+        "ex": [
+            "Tachypnoea, tachycardia and hypoxia; hypotension if haemodynamically unstable.",
+            "Raised JVP, loud pulmonary second sound and right ventricular heave.",
+            "Unilateral calf swelling and tenderness; pleural rub.",
+        ],
+        "ix": [
+            "ECG: sinus tachycardia most commonly; right heart strain or S1Q3T3 in large PE.",
+            "Wells score to direct D-dimer versus CT pulmonary angiography, and ABG.",
+        ],
+    },
+    "pulmonary embol": {
+        "hx": [
+            "Risk factors: immobility, recent surgery, pregnancy, long-haul travel, "
+            "oestrogen-containing hormone therapy, cancer, obesity, smoking, SLE, polycythaemia, "
+            "thrombophilia, previous DVT or PE.",
+            "Sudden onset shortness of breath, pleuritic chest pain and haemoptysis.",
+            "DVT signs such as leg swelling; presyncope or syncope.",
+        ],
+        "ex": [
+            "Tachypnoea, tachycardia, hypoxia and hypotension if significant haemodynamic instability.",
+            "Signs of right heart strain: raised JVP, parasternal heave, loud P2.",
+            "Calf examination for DVT.",
+        ],
+        "ix": [
+            "ECG, Wells score to direct D-dimer versus CT pulmonary angiography, and ABG.",
+        ],
+    },
+    "co2 retention": {
+        "hx": [
+            "Risk factors: COPD, sleep apnoea, obesity, neuromuscular disorder, sedation.",
+            "Acute onset confusion and drowsiness; morning headache.",
+            "Recent opioids, benzodiazepines or uncontrolled oxygen therapy.",
+        ],
+        "ex": [
+            "Reduced GCS, reduced respiratory rate, tachycardia, flapping tremor and flush.",
+            "Bounding pulse and warm peripheries; conscious level tracked over time.",
+        ],
+        "ix": [
+            "ABG: type 2 respiratory failure - pCO2 over 6 kPa and pO2 under 8 kPa.",
+            "Compare with any previous gases to judge whether the retention is acute or chronic.",
+        ],
+    },
+    "acute abdomen": {
+        "hx": [
+            "Acute onset significant abdominal pain, with or without peritonism; the presentation "
+            "depends on the underlying cause.",
+            "Work through the causes: acute cholecystitis, acute appendicitis, ruptured ectopic "
+            "pregnancy, peptic ulcer, pancreatitis, ruptured AAA, bowel obstruction, ischaemic "
+            "colitis, diverticulitis, renal colic, pyelonephritis, acute urinary retention, "
+            "pelvic inflammatory disease.",
+            "Site, radiation and character of the pain, and its relation to meals and defaecation.",
+            "Vomiting, bowel habit change, bleeding; last menstrual period and pregnancy test in "
+            "any woman of reproductive age.",
+        ],
+        "ex": [
+            "Peritonism: guarding, rigidity, rebound tenderness and percussion tenderness - "
+            "note whether it is local or generalised.",
+            "Inspect, then palpate all nine regions starting away from the pain; percuss and auscultate.",
+            "Every hernial orifice, the scars, and a rectal examination; palpate for an aortic aneurysm.",
+            "Haemodynamic state and temperature.",
+        ],
+        "ix": [
+            "Erect CXR and abdominal imaging for free gas or obstruction; bedside pregnancy test.",
+            "FBC, CRP, urea and electrolytes, liver function, amylase or lipase, lactate, "
+            "group and save, venous gas.",
+        ],
+    },
+    "upper gi bleed": {
+        "hx": [
+            "Risk factors: peptic ulcer disease, NSAID use, smoking, stress, persistent vomiting, "
+            "Mallory-Weiss tear, alcohol-related liver disease, oesophageal varices, "
+            "upper GI malignancy.",
+            "Haematemesis, coffee-ground vomiting and melaena - volume, frequency and duration.",
+            "Anticoagulants and antiplatelets; dizziness or syncope indicating significant loss.",
+        ],
+        "ex": [
+            "Haemodynamic instability: heart rate, blood pressure with a postural drop, "
+            "capillary refill, conscious level.",
+            "Stigmata of chronic liver disease, ascites, splenomegaly and encephalopathy grade.",
+            "Rectal examination for melaena.",
+        ],
+        "ix": [
+            "Glasgow-Blatchford score, FBC, urea and electrolytes, liver function, clotting, "
+            "group and save or crossmatch.",
+            "A raised urea with a normal creatinine supports an upper GI source.",
+        ],
+    },
+    "hypoglycaemia": {
+        "hx": [
+            "Risk factors: insulin, hypoglycaemia-inducing oral medication such as gliclazide, "
+            "intercurrent illness, reduced oral intake.",
+            "The patient may be unaware; if aware they feel unwell, sweaty, shaky and dizzy.",
+            "Confusion and loss of consciousness if severe.",
+            "Alcohol, exercise, renal impairment, and whether hypoglycaemia awareness is preserved.",
+        ],
+        "ex": [
+            "Capillary blood glucose before anything else; conscious level and GCS.",
+            "Sweating, tremor and tachycardia; focal neurology can mimic stroke.",
+        ],
+        "ix": [
+            "Capillary blood glucose under 4.0.",
+            "Recheck glucose after treatment, and take a ketone and drug history to explain the cause.",
+        ],
+    },
+    "dka": {
+        "hx": [
+            "Risk factors: undiagnosed type 1 diabetes, poor adherence to insulin, intercurrent "
+            "illness such as infection.",
+            "Polyuria, polydipsia, thirst, nausea, vomiting and weight loss.",
+            "Abdominal pain and confusion.",
+            "Search for the precipitant: infection, missed insulin, myocardial infarction, steroids.",
+        ],
+        "ex": [
+            "Dehydration, Kussmaul respiration, ketotic breath and conscious level.",
+            "Search for the precipitant: chest, abdomen, skin, feet.",
+            "Haemodynamic state and urine output.",
+        ],
+        "ix": [
+            "Capillary blood glucose raised or unrecordable, blood ketones over 3, pH under 7.3.",
+            "Venous gas, urea and electrolytes with potassium, and a septic screen for the precipitant.",
+        ],
+    },
+    "stroke": {
+        "hx": [
+            "Risk factors: previous stroke, atrial fibrillation, hypertension, diabetes, "
+            "hyperlipidaemia, carotid artery stenosis, smoking, obesity.",
+            "Sudden onset asymmetrical neurological symptoms are typical: limb weakness, "
+            "facial weakness, slurred speech, vision changes, sensory change, unsteadiness, "
+            "loss of co-ordination, vertigo.",
+            "Exact time last known well - it determines thrombolysis and thrombectomy eligibility.",
+            "Anticoagulants; seizure, trauma or hypoglycaemia as stroke mimics.",
+        ],
+        "ex": [
+            "Capillary glucose first, then a structured NIHSS-style deficit assessment.",
+            "Speech, visual fields, facial and limb power, sensation, coordination and neglect.",
+            "Blood pressure, heart rhythm, carotid bruits, and a swallow screen before anything oral.",
+        ],
+        "ix": [
+            "Urgent non-contrast CT head to separate infarct from haemorrhage before thrombolysis.",
+            "Bedside glucose, ECG for atrial fibrillation, clotting and platelets.",
+        ],
+    },
+    "seizure": {
+        "hx": [
+            "Risk factors: known epilepsy, brain or head injury, post-stroke, brain tumour, "
+            "medication change, alcohol withdrawal, trigger exposure such as infection, "
+            "flashing lights or sleep disturbance.",
+            "Seizure type from the witness account - generalised tonic-clonic with limb jerking, "
+            "tongue biting and incontinence; focal or partial affecting speech, memory, emotion "
+            "or behaviour; myoclonic with sudden brief muscle contraction; tonic with a sudden "
+            "increase in muscle tone; atonic with sudden loss of muscle tone; absence with "
+            "episodes of blank staring, not responding to stimuli or surroundings.",
+            "Before, during and after: aura, duration, and post-ictal confusion or drowsiness.",
+            "Missed anti-epileptics, alcohol, recreational drugs and sleep deprivation.",
+        ],
+        "ex": [
+            "Lateral tongue bite, injuries, incontinence, conscious level and post-ictal state.",
+            "Capillary glucose, temperature, and focal neurology including Todd paresis.",
+            "Signs of meningism or raised intracranial pressure.",
+        ],
+        "ix": [
+            "Bedside glucose, sodium, calcium, magnesium; anti-epileptic drug levels where relevant.",
+            "CT head if first seizure, focal deficit, head injury, anticoagulation or "
+            "failure to return to baseline.",
+        ],
+    },
+    "intracranial bleed": {
+        "hx": [
+            "Risk factors: risk of falls, head injury, anticoagulation, bleeding disorder, "
+            "aneurysm, ischaemic stroke, hypertension.",
+            "Acute onset headache, seizure and vomiting.",
+            "Reduced GCS and focal neurology such as limb weakness.",
+            "Mechanism and timing of any head injury, and progression since.",
+        ],
+        "ex": [
+            "GCS with its components, pupils and focal neurology - repeated over time.",
+            "Skull base signs: Battle sign, raccoon eyes, CSF leak, haemotympanum.",
+            "Cushing response of hypertension with bradycardia; fundoscopy for papilloedema.",
+        ],
+        "ix": [
+            "Immediate non-contrast CT head; clotting, platelets and anticoagulant reversal status.",
+            "Bedside glucose and blood pressure.",
+        ],
+    },
+    "anaphylaxis": {
+        "hx": [
+            "Risk factors: known allergies, previous anaphylaxis, atopy.",
+            "Exposure to a known or new trigger and the interval to symptom onset.",
+            "Allergic reaction signs - urticaria, itch, angio-oedema - with life-threatening "
+            "compromise to airway, breathing or circulation.",
+            "Shortness of breath, wheeze, stridor, presyncope or syncope.",
+            "Autoinjector use before arrival, and asthma as a severity risk factor.",
+        ],
+        "ex": [
+            "Airway: stridor, tongue and lip swelling, voice change - assess repeatedly.",
+            "Breathing: wheeze, work of breathing, saturations.",
+            "Circulation: tachycardia, hypotension, perfusion.",
+            "Urticaria and angio-oedema; note that absent skin signs do not exclude it.",
+        ],
+        "ix": [
+            "A clinical diagnosis - do not delay intramuscular adrenaline for any test.",
+            "Serial mast cell tryptase after treatment, and later allergy referral.",
+        ],
+    },
+    "sepsis": {
+        "hx": [
+            "Risk factors for immunocompromise: age under 1 or over 75, diabetes, chemotherapy, "
+            "steroids, pregnancy, post-operative state.",
+            "Signs of infection by system: cough, cellulitis, lower urinary tract symptoms.",
+            "Time course of fever, rigors and functional decline.",
+            "Lines, catheters, prostheses, recent surgery, travel and antibiotics already taken.",
+        ],
+        "ex": [
+            "Derangement of heart rate, respiratory rate, temperature, blood pressure, oxygen "
+            "saturations, conscious level and urine output.",
+            "Perfusion, capillary refill and mottling.",
+            "Systematic source hunt: chest, abdomen, urine, skin and soft tissue, lines, joints, CNS.",
+        ],
+        "ix": [
+            "Septic shock: mean arterial pressure under 65 mmHg, serum lactate over 2.",
+            "Blood cultures before antibiotics where possible, lactate, FBC, urea and "
+            "electrolytes, CRP, urine output monitoring.",
+        ],
+    },
+    "opiate toxicity": {
+        "hx": [
+            "Risk factors: iatrogenic, opiate dependence, intentional overdose.",
+            "What was taken, route, dose, timing and any co-ingestants.",
+            "Recent dose escalation, renal impairment, or a new interacting drug.",
+        ],
+        "ex": [
+            "Reduced GCS and airway compromise such as snoring.",
+            "Low respiratory rate, hypoxia and pinpoint pupils.",
+            "Injection sites, and temperature and bowel sounds to complete the toxidrome.",
+        ],
+        "ix": [
+            "Bedside glucose and ABG for type 2 respiratory failure.",
+            "Response to naloxone is both diagnostic and therapeutic - titrate to respiratory rate, "
+            "and remember it is shorter acting than most opiates.",
+        ],
+    },
+}
+DIFFERENTIAL_KB.update(ACUTE_KB)
+
+# Aliases so the acute entries are reachable by the wording used in the cards.
+for _alias, _target in [
+    ("acute coronary syndrome", "acs"),
+    ("stemi", "acs"),
+    ("nstemi", "acs"),
+    ("acute pulmonary oedema", "pulmonary oedema"),
+    ("supraventricular tachycardia", "svt"),
+    ("arrest", "cardiac arrest"),
+    ("acute asthma", "asthma"),
+    ("acute exacerbation of copd", "copd"),
+    ("infective exacerbation", "copd"),
+    ("ptx", "pneumothorax"),
+    ("tension pneumothorax", "pneumothorax"),
+    ("hypercapnia", "co2 retention"),
+    ("type 2 respiratory failure", "co2 retention"),
+    ("peritonitis", "acute abdomen"),
+    ("upper gastrointestinal bleed", "upper gi bleed"),
+    ("variceal haemorrhage", "upper gi bleed"),
+    ("diabetic ketoacidosis", "dka"),
+    ("hypo", "hypoglycaemia"),
+    ("cva", "stroke"),
+    ("ischaemic stroke", "stroke"),
+    ("haemorrhagic stroke", "intracranial bleed"),
+    ("intracerebral haemorrhage", "intracranial bleed"),
+    ("subdural", "intracranial bleed"),
+    ("extradural", "intracranial bleed"),
+    ("epilepsy", "seizure"),
+    ("status epilepticus", "seizure"),
+    ("septic shock", "sepsis"),
+    ("anaphylactic", "anaphylaxis"),
+    ("opioid toxicity", "opiate toxicity"),
+    ("opioid overdose", "opiate toxicity"),
+    ("opiate overdose", "opiate toxicity"),
+]:
+    DIFFERENTIAL_KB.setdefault(_alias, DIFFERENTIAL_KB[_target])
+
+
+# The acute set as its own practice section, in the order it was given. Four of
+# these (cardiac arrest, CO2 retention, acute abdomen, opiate toxicity) are not
+# listed as a differential anywhere in the handbook, so without this section
+# their content would be unreachable.
+#
+# Each entry is (label, knowledge-base key, system for the examination
+# framework, the complaint in the patient's own words for the roleplay opener).
+ACUTE_ORDER = [
+    ("Acute coronary syndrome", "acs", "Cardiovascular and respiratory presentations",
+     "a heavy tightness in the middle of my chest"),
+    ("Acute pulmonary oedema", "pulmonary oedema", "Cardiovascular and respiratory presentations",
+     "suddenly unable to get my breath, and coughing up frothy pink spit"),
+    ("Unstable SVT", "svt", "Cardiovascular and respiratory presentations",
+     "my heart suddenly racing, and feeling faint with it"),
+    ("Cardiac arrest", "cardiac arrest", "Cardiovascular and respiratory presentations",
+     None),
+    ("Acute asthma exacerbation", "asthma", "Cardiovascular and respiratory presentations",
+     "my chest getting tighter and wheezier all day"),
+    ("Acute COPD exacerbation", "copd", "Cardiovascular and respiratory presentations",
+     "more breathless than usual, and coughing up green phlegm"),
+    ("Pneumothorax", "pneumothorax", "Cardiovascular and respiratory presentations",
+     "a sudden sharp pain in my chest and trouble breathing"),
+    ("Pulmonary embolism", "pe", "Cardiovascular and respiratory presentations",
+     "suddenly short of breath with a sharp pain when I breathe in"),
+    ("Acute CO2 retention", "co2 retention", "Cardiovascular and respiratory presentations",
+     None),
+    ("Acute abdomen", "acute abdomen", "Gastrointestinal and hepatobiliary presentations",
+     "a really severe pain in my belly"),
+    ("Upper GI bleed", "upper gi bleed", "Gastrointestinal and hepatobiliary presentations",
+     "vomiting blood and passing black, tarry stools"),
+    ("Hypoglycaemia", "hypoglycaemia", "Endocrine and general systemic presentations",
+     "shaky, sweaty and muddled"),
+    ("Diabetic ketoacidosis", "dka", "Endocrine and general systemic presentations",
+     "terribly thirsty, passing lots of urine, and being sick"),
+    ("Acute stroke", "stroke", "Neurological presentations",
+     "my arm and face suddenly went weak on one side"),
+    ("Seizure", "seizure", "Neurological presentations",
+     "a fit - I do not remember it, but I was told what happened"),
+    ("Intracranial bleed", "intracranial bleed", "Neurological presentations",
+     "a sudden severe headache, and I have been vomiting"),
+    ("Anaphylaxis", "anaphylaxis", "Cardiovascular and respiratory presentations",
+     "a rash all over and my throat closing up"),
+    ("Sepsis", "sepsis", "Infection and fever presentations",
+     "shivery and dreadful, and I have gone downhill fast"),
+    ("Opiate toxicity", "opiate toxicity", "Neurological presentations",
+     None),
+]
+
+# Presentations where the patient cannot give a history at all. The roleplay view
+# says so rather than inventing an opening line.
+NO_HISTORY_NOTE = ("This patient cannot give a history. Practise the collateral "
+                   "history instead: brief a second person as the witness, "
+                   "paramedic or relative and take it from them.")
+
+
+# ---------------------------------------------------------------------------
 # Layer 2: per-system fallbacks
 # ---------------------------------------------------------------------------
 

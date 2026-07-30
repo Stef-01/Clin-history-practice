@@ -42,6 +42,35 @@ mode (2:00 or 3:00) and turns red when you go over, and the progress bar is
 notched at each block boundary so you can see at a glance whether you are ahead
 or behind. Space bar starts and pauses.
 
+### Acute presentations
+
+A standing **Acute presentations** button (bottom right, screen only) opens a
+19-presentation acute set as its own practice section:
+
+Acute coronary syndrome · Acute pulmonary oedema · Unstable SVT · Cardiac arrest
+· Acute asthma exacerbation · Acute COPD exacerbation · Pneumothorax · Pulmonary
+embolism · Acute CO2 retention · Acute abdomen · Upper GI bleed · Hypoglycaemia
+· Diabetic ketoacidosis · Acute stroke · Seizure · Intracranial bleed ·
+Anaphylaxis · Sepsis · Opiate toxicity
+
+These are presentations in their own right rather than differentials of
+something else, so each is framed as *recognise, assess and stabilise* rather
+than *confirm or exclude*. Four of them — cardiac arrest, CO2 retention, acute
+abdomen and opiate toxicity — are not listed as a differential anywhere in the
+handbook, so this section is the only place their content is reachable.
+
+Each carries the risk factors and presenting features in the history, the signs
+in the examination, and a **What confirms or grades it** block holding the
+objective findings and severity thresholds — ECG changes, ABG patterns, CXR
+signs, and the numeric cut-offs (asthma acute-severe vs life-threatening
+criteria, DKA ketones and pH, septic shock MAP and lactate, capillary glucose
+under 4.0, pCO2 over 6 kPa). That block appears in the examination view only and
+is never shown on the patient's side.
+
+For cardiac arrest, CO2 retention and opiate toxicity the patient cannot give a
+history, so the roleplay view says so and directs you to practise the collateral
+history from a witness, paramedic or relative instead.
+
 ### Patient roleplay
 
 In history mode there is a **Doctor / Patient roleplay** switch, so two people
@@ -80,6 +109,13 @@ python3 build/build.py
 - `build/layer.py` — the injected presentation: styles, drawer markup and
   behaviour. Separated from `build.py` so the design can be iterated on without
   touching the parsing and content generation.
+
+`ACUTE_KB` holds the acute-presentation set, with a third field `ix` for the
+objective findings and severity thresholds; `ACUTE_ORDER` fixes the order they
+appear in and maps each to its examination system and its lay opening line.
+Aliases (`stemi`, `cva`, `status epilepticus`, `opioid overdose`, …) point at the
+same entries so the acute content is also picked up when a card lists the
+diagnosis under a different name.
 
 Differential-specific content comes from two layers:
 

@@ -21,10 +21,12 @@ from knowledge import (
     CLOSING_PATIENT,
     DIFFERENTIAL_KB,
     DISCLOSURE,
+    ACUTE_ORDER,
     EXAM_CLOSING,
     EXAM_OPENING,
     FINDING_PRESENTATIONS,
     LAY,
+    NO_HISTORY_NOTE,
     OPENING,
     PRESENTATION_LAY,
     SYSTEM_KB,
@@ -164,7 +166,10 @@ def timed(blocks):
     return out
 
 
-def build_history(presentation, system, focus_hx, red_flags):
+NO_HISTORY = object()  # sentinel: patient cannot give a history at all
+
+
+def build_history(presentation, system, focus_hx, red_flags, complaint=None):
     """A 2-minute history split into four timed blocks (120 seconds total).
 
     Every item carries both sides so the roleplay view can reveal the doctor's
@@ -176,7 +181,13 @@ def build_history(presentation, system, focus_hx, red_flags):
     # so the actor gets an opening line and an affect cue instead.
     opening = [item(d) for d in OPENING]
     key = presentation.lower()
-    if key in FINDING_PRESENTATIONS:
+    if complaint is NO_HISTORY:
+        line = NO_HISTORY_NOTE
+    elif complaint:
+        line = ('Open in your own words with something like "I have been getting %s, '
+                'and that is what brought me in." Then stop talking and wait to be asked.'
+                % complaint)
+    elif key in FINDING_PRESENTATIONS:
         line = ('You have been told you have %s and this appointment is about it. '
                 'Open with "I was told there was something on my test, and I want to '
                 'know what it means." Then wait to be asked.' % presentation.lower())
@@ -189,9 +200,14 @@ def build_history(presentation, system, focus_hx, red_flags):
         line,
         "Your opening line",
     ))
+    # An unresponsive patient has no affect to play; brief the informant instead.
+    affect = ("Play the informant, not the patient: give the timeline and what you saw, "
+              "and be frightened and wanting to know what is happening."
+              if complaint is NO_HISTORY
+              else AFFECT.get(system, "Play it as someone genuinely worried by this symptom."))
     opening.append(item(
         "Read the patient's affect as well as their words - it is part of the history.",
-        AFFECT.get(system, "Play it as someone genuinely worried by this symptom."),
+        affect,
         "How to play it",
     ))
 
@@ -284,8 +300,11 @@ def build_case_practice(card_html, system):
 
     for i, (term, group) in enumerate(parse_differentials(card_html)):
         entry = match_kb(term)
+        findings = []
         if entry:
             focus_hx, focus_ex = list(entry["hx"]), list(entry["ex"])
+            # Objective findings and severity thresholds, where curated.
+            findings = list(entry.get("ix", []))
             matched = True
         else:
             focus_hx, focus_ex = generic_focus(term, system)
@@ -300,11 +319,41 @@ def build_case_practice(card_html, system):
                 # must not name the diagnosis being tested.
                 "hx": build_history(title, system, focus_hx, red_flags),
                 "ex": build_exam(system, focus_ex),
+                "ix": findings,
                 "note": "",
             }
         )
 
     return number, {"number": number, "title": title, "system": system, "tabs": tabs}
+
+
+def build_acute_section():
+    """The acute presentations as a standalone practice set.
+
+    Each is a presentation in its own right rather than a differential of
+    something else, so every tab carries the 'acute' group and is framed as
+    "assess and stabilise", not "confirm or exclude".
+    """
+    tabs = []
+    for i, (label, key, system, complaint) in enumerate(ACUTE_ORDER):
+        entry = DIFFERENTIAL_KB[key]
+        tabs.append({
+            "id": "a%d" % i,
+            "label": label,
+            "group": "acute",
+            "matched": True,
+            "hx": build_history(label, system, list(entry["hx"]), [],
+                                complaint=complaint if complaint else NO_HISTORY),
+            "ex": build_exam(system, list(entry["ex"])),
+            "ix": list(entry.get("ix", [])),
+            "note": "",
+        })
+    return "AC", {
+        "number": "AC",
+        "title": "Acute presentations",
+        "system": "Recognise, assess and stabilise",
+        "tabs": tabs,
+    }
 
 
 def main():
@@ -324,6 +373,10 @@ def main():
             for t in entry["tabs"][1:]:
                 stats["tabs"] += 1
                 stats["matched" if t.get("matched") else "fallback"] += 1
+
+    acute_no, acute_entry = build_acute_section()
+    data[acute_no] = acute_entry
+    stats["acute"] = len(acute_entry["tabs"])
 
     # Inject the toggle button into every case head in the source markup.
     def add_button(m):
@@ -345,7 +398,8 @@ def main():
     with open(OUTPUT, "w", encoding="utf-8") as f:
         f.write(out)
 
-    print("cases: %(cases)d   differential tabs: %(tabs)d" % stats)
+    print("cases: %(cases)d   differential tabs: %(tabs)d   "
+          "acute presentations: %(acute)d" % stats)
     print("knowledge-base matched: %d (%.0f%%)   template fallback: %d"
           % (stats["matched"], 100.0 * stats["matched"] / max(stats["tabs"], 1), stats["fallback"]))
     print("wrote %s (%.0f KB)" % (OUTPUT, os.path.getsize(OUTPUT) / 1024))
