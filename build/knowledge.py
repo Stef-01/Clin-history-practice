@@ -1489,3 +1489,199 @@ EXAM_CLOSING = [
     "State the completion: relevant bedside tests, other systems, and any intimate examination with a chaperone.",
     "Thank the patient, re-cover them, wash hands, then present a one-line summary with your leading diagnosis.",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Patient roleplay layer
+# ---------------------------------------------------------------------------
+# The roleplay view is a simulated-patient brief, which is how real OSCE actor
+# briefs work: instructions on what to disclose and when, not a verbatim script.
+# Each doctor prompt is rendered into lay language and tagged with a disclosure
+# rule, so two people can run the station from one screen.
+
+# Disclosure rule per history block index.
+DISCLOSURE = [
+    "Volunteer freely",   # 01 open and orient
+    "Only if asked",      # 02 focused discriminators - the discriminating detail
+    "Only if asked",      # 03 background
+    "Only if asked",      # 04 red flags and close
+]
+
+# Clinical term -> lay phrasing, applied longest-key-first.
+LAY = {
+    "shortness of breath": "being short of breath",
+    "exertional breathlessness": "getting puffed out when you move around",
+    "breathlessness": "being short of breath",
+    "orthopnoea": "not being able to lie flat without getting breathless",
+    "paroxysmal nocturnal dyspnoea": "waking in the night fighting for breath",
+    "haemoptysis": "coughing up blood",
+    "haematemesis": "vomiting blood",
+    "melaena": "black, tarry, foul-smelling stools",
+    "haematuria": "blood in your urine",
+    "dysuria": "stinging or burning when you pass urine",
+    "nocturia": "getting up at night to pass urine",
+    "polyuria": "passing much more urine than usual",
+    "polydipsia": "being much thirstier than usual",
+    "dysphagia": "food or drink sticking on the way down",
+    "odynophagia": "pain when you swallow",
+    "syncope": "blacking out",
+    "presyncope": "feeling like you were about to black out",
+    "palpitations": "being aware of your heart racing or thumping",
+    "claudication": "cramping pain in your legs when you walk",
+    "paraesthesia": "pins and needles",
+    "pruritus": "itching",
+    "arthralgia": "aching joints",
+    "myalgia": "aching muscles",
+    "photophobia": "light hurting your eyes",
+    "phonophobia": "noise bothering you",
+    "rigors": "shaking chills you could not control",
+    "pyrexia": "fever",
+    "anorexia": "losing your appetite",
+    "cachexia": "losing a lot of weight and muscle",
+    "steatorrhoea": "pale, greasy stools that float and are hard to flush",
+    "tenesmus": "feeling you still need to go after opening your bowels",
+    "pneumaturia": "bubbles or air in your urine",
+    "faecaluria": "urine that smells of stool",
+    "hesitancy": "having to wait for the stream to start",
+    "terminal dribble": "dribbling at the end of passing urine",
+    "amaurosis fugax": "a curtain coming down over the vision in one eye",
+    "diplopia": "double vision",
+    "dysarthria": "slurred speech",
+    "dysphasia": "trouble finding or understanding words",
+    "ataxia": "being unsteady on your feet",
+    "vertigo": "the room spinning around you",
+    "tinnitus": "ringing in your ears",
+    "otorrhoea": "discharge from your ear",
+    "otalgia": "ear pain",
+    "epistaxis": "nosebleeds",
+    "trismus": "not being able to open your mouth wide",
+    "dyspareunia": "pain during sex",
+    "menorrhagia": "unusually heavy periods",
+    "amenorrhoea": "your periods stopping",
+    "oedema": "swelling",
+    "erythema": "redness of the skin",
+    "urticaria": "an itchy raised rash like nettle stings",
+    "angioedema": "swelling of your lips, tongue or face",
+    "jaundice": "your skin or eyes turning yellow",
+    "asterixis": "your hands flapping when you hold them out",
+    "confusion": "being muddled or not thinking straight",
+    "seizure": "a fit",
+    "aura": "an odd warning feeling beforehand",
+    "post-ictal": "the drowsy, muddled period afterwards",
+    "incontinence": "losing control of your bladder or bowels",
+    "saddle anaesthesia": "numbness between your legs, where a saddle would touch",
+    "atopy": "asthma, hay fever or eczema",
+    "pack-years": "how much you have smoked over the years",
+}
+# Only concrete symptom nouns belong in LAY. Abstract clinical scaffolding
+# ("onset", "trigger", "time course") reads as nonsense when substituted
+# mid-sentence - "the interval to symptom how it started" - so it stays out.
+
+
+# Presenting complaints in the patient's own words. Anything absent from this
+# map is already lay enough to say out loud ("chest pain", "cough", "vomiting").
+PRESENTATION_LAY = {
+    "stridor": "noisy, harsh breathing",
+    "dyspnoea": "trouble getting my breath",
+    "haemoptysis": "coughing up blood",
+    "pleuritic chest pain": "a sharp pain in my chest when I breathe in",
+    "syncope": "blacking out",
+    "palpitations": "my heart racing and thumping",
+    "haematemesis and melaena": "vomiting blood and passing black, tarry stools",
+    "dysphagia": "food sticking when I swallow",
+    "jaundice": "going yellow",
+    "anal pain and/or tenesmus": "pain at my back passage and feeling I still need to go",
+    "oliguria / decreased urine output": "hardly passing any urine",
+    "haematuria": "blood in my urine",
+    "dysuria": "burning when I pass urine",
+    "nocturia": "getting up all night to pass urine",
+    "polyuria": "passing far more urine than usual",
+    "urinary incontinence": "leaking urine",
+    "faecal incontinence": "not making it to the toilet in time",
+    "difficulty passing urine / urinary retention": "not being able to pass urine",
+    "erectile dysfunction": "problems getting an erection",
+    "malabsorption": "pale, greasy stools and losing weight",
+    "hirsutism": "hair growing where I do not want it",
+    "acute monoarthritis": "one joint suddenly hot, swollen and agonising",
+    "polyarthritis, 5 or more joints": "lots of my joints aching and swelling",
+    "oligoarthritis, 2 to 4 joints": "a few joints swollen and sore",
+    "soft tissue rheumatism": "aching around my joints rather than in them",
+    "fit and/or blackout": "a funny turn where I lost consciousness",
+    "focal weakness and lesion localisation": "weakness down one side",
+    "vertigo and dizziness": "the room spinning around me",
+    "numbness and tingling": "numbness and pins and needles",
+    "pruritus": "itching all over",
+    "epistaxis": "nosebleeds",
+    "hoarseness": "my voice going husky",
+    "rhinorrhoea": "a constantly runny nose",
+    "tinnitus": "ringing in my ears",
+    "ear pain and/or discharge": "earache and discharge from my ear",
+    "sore throat": "a very sore throat",
+    "unintentional weight loss": "losing weight without trying",
+    "excessive daytime sleepiness": "falling asleep during the day",
+    "limb swelling": "my leg swelling up",
+    "painful limb": "a very painful leg",
+    "changing skin lesion, nodule, papule or ulcer": "a spot on my skin that has changed",
+    "lymphadenopathy": "lumps in my neck",
+    "abdominal distension": "my belly swelling up",
+    "change in bowel habit": "my bowels not behaving as they used to",
+    "recurrent infections": "one infection after another",
+    "bleeding disorder": "bruising and bleeding far too easily",
+    "sepsis": "feeling dreadful with a fever",
+    "fever of unknown origin": "a fever that will not go away",
+    "fever in the returned traveller": "a fever since I got back from my trip",
+    "common bacterial infections": "an infection that is not settling",
+    "multisystem disease, vasculitis or connective tissue disorder":
+        "all sorts of things wrong at once - rashes, joints and feeling unwell",
+    "raised intracranial pressure": "a headache that is worst when I wake up",
+    "repeated falls": "falling over again and again",
+    "skin failure": "my skin breaking down over large areas",
+}
+
+# Presentations that are a finding or a task rather than something a patient
+# walks in complaining of. The actor is briefed as having been told the finding.
+FINDING_PRESENTATIONS = {
+    "lung nodule on chest x-ray", "perforated viscus", "acute kidney injury",
+    "chronic kidney disease", "proteinuria", "renal mass", "scrotal mass",
+    "abdominal mass", "pituitary mass", "adrenal mass", "neck mass",
+    "solitary thyroid nodule", "space-occupying lesion in the brain",
+    "brain death, neurological determination of death", "pancytopenia",
+    "raised red cell or white cell count", "splenomegaly",
+    "spinal cord compression", "superior vena cava obstruction",
+    "acute malignancy-related hypercalcaemia", "breaking bad news",
+    "febrile neutropenia / immunosuppressed patient with fever",
+    "fever in the perioperative or hospital-acquired setting",
+    "fracture, traumatic versus pathological", "heart murmur",
+    "foreign body in gastrointestinal tract", "ear, nose or throat foreign body",
+}
+
+# Affective cue per system, so the actor has something to play.
+AFFECT = {
+    "Cardiovascular and respiratory presentations":
+        "Play it breathless: short sentences, pause for air, sit forward if it helps.",
+    "Gastrointestinal and hepatobiliary presentations":
+        "Guard the sore area with your hand and be reluctant to let it be pressed.",
+    "Renal, urinary and male genital presentations":
+        "Be embarrassed about the urinary details and only give them once asked plainly.",
+    "Endocrine and general systemic presentations":
+        "Play it tired and flat, and mention how long you have felt not yourself.",
+    "Musculoskeletal and rheumatological presentations":
+        "Move stiffly, and wince when the affected part is moved rather than touched.",
+    "Neurological presentations":
+        "If the brief says confused, answer slightly off the question and let a relative correct you.",
+    "Skin, wounds and trauma presentations":
+        "Be worried about scarring and about whether it will need stitches or surgery.",
+    "Ear, nose and throat presentations":
+        "Speak quietly or hoarsely, and ask the doctor to repeat things if hearing is the issue.",
+    "Infection and fever presentations":
+        "Play it unwell and shivery, pulling the blanket up, with a poor sense of time.",
+    "Haematological presentations":
+        "Play it exhausted, and mention bruises you cannot account for only when asked.",
+    "Oncological emergencies and communication":
+        "Be frightened and looking for reassurance; ask directly whether this is the cancer spreading.",
+}
+
+CLOSING_PATIENT = [
+    "If asked what you are worried about, give the concern in the brief - do not offer it unprompted.",
+    "If the doctor summarises accurately, confirm it; if they miss something important, stay quiet.",
+]

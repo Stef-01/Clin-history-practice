@@ -31,9 +31,36 @@ Each case has one tab per differential plus a **Generalised presentation** tab:
   confirm or exclude X as the cause of Y"* — and swaps in discriminators and
   targeted signs specific to that diagnosis.
 
-Must-not-miss differentials are outlined in red, so the tab strip doubles as a
-safety checklist. A countdown timer runs to the correct limit for the mode
-(2:00 or 3:00) and turns red when you go over.
+Differentials are grouped into **This presentation / Must not miss / Other**,
+with must-not-miss outlined in red, so the tab strip doubles as a safety
+checklist.
+
+The timed blocks are laid out on a numbered rail, and **the block you should be
+in lights up as the timer runs** — the current block takes an accent dot and
+rail, completed blocks fade back. A countdown runs to the correct limit for the
+mode (2:00 or 3:00) and turns red when you go over, and the progress bar is
+notched at each block boundary so you can see at a glance whether you are ahead
+or behind. Space bar starts and pauses.
+
+### Patient roleplay
+
+In history mode there is a **Doctor / Patient roleplay** switch, so two people
+can run the station from one screen.
+
+The roleplay view is a simulated-patient brief — which is how real OSCE actor
+briefs work: instructions on what to disclose and when, not a verbatim script.
+Each line is tagged with its disclosure rule (**Your opening line**, **How to
+play it**, **Only if asked**), and **hovering or tapping any line reveals the
+question the doctor needs to ask to elicit it**. Keyboard users can tab to each
+line for the same reveal.
+
+The brief gives the actor an opening line in lay language ("I have been getting
+noisy, harsh breathing"), an affect cue for the system ("play it breathless:
+short sentences, pause for air"), and the discriminating details to hold back
+until asked. On a differential tab the actor is told which diagnosis they are
+playing and instructed not to name it. Doctor-side technique lines — introducing
+yourself, gaining consent, summarising back — have no patient counterpart and
+are simply omitted from the roleplay view.
 
 Printing is unaffected — the Practice buttons and drawer are hidden in print,
 and the original 58-page pagination is preserved.
@@ -49,8 +76,10 @@ python3 build/build.py
 
 - `build/source.html` — the original handbook, untouched.
 - `build/knowledge.py` — the content knowledge base.
-- `build/build.py` — parses each case, derives the practice cards, and injects
-  the CSS, JSON payload, drawer markup and behaviour.
+- `build/build.py` — parses each case and derives the practice cards.
+- `build/layer.py` — the injected presentation: styles, drawer markup and
+  behaviour. Separated from `build.py` so the design can be iterated on without
+  touching the parsing and content generation.
 
 Differential-specific content comes from two layers:
 
@@ -78,3 +107,13 @@ so you can target the highest-yield gaps first.
   frame the diagnostic question, but they do not contain
   diagnosis-specific clinical detail. Treat them as a scaffold to fill in, not
   as taught content.
+- The patient brief is generated from the doctor-side prompts by lay-language
+  substitution (`LAY` and `PRESENTATION_LAY` in `knowledge.py`). Concrete
+  symptom nouns translate well — *haemoptysis* becomes *coughing up blood* — but
+  where a prompt has no lay equivalent the patient line stays in clinical
+  register and reads as a disclosure topic rather than natural speech. The
+  doctor-side reveal is the prompt rephrased as an instruction to ask, so on
+  those lines the two sides are close in wording. Adding a `LAY` entry improves
+  both sides at once.
+- The affect cues are per system, not per diagnosis, so they set the register
+  rather than portraying a specific case.
